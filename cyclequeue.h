@@ -1,16 +1,18 @@
 #include <iostream>
 #pragma once
-#define N 10
 
 using namespace std;
 
 class cyclequeue {
 private:
-	int a[N], back, front;
+	int *a, back, front, n, max;
 public:
 	cyclequeue() {
+		n = 0;
+		max = 10;
 		back = -1;
 		front = -1;
+		a = new int[max];
 	}
 
 	bool isempty() {
@@ -28,13 +30,26 @@ public:
 
 	void push(int el) {
 		if (isfull()) {
-			cout << "cyclequeue's full";
+			int *tmp = new int[n];
+			for (int i = 0; i < max; i++)
+				tmp[i] = a[i];
+			delete[] a;
+			*a = new int[2 * max];
+			max = max * 2;
+			for (int i = n - 1; i > front - 1; i--)
+				a[n + i] = tmp[i];
+			for (int i = 0; i < back; i++)
+				a[i] = tmp[i];
+			delete[] tmp;
+			back = (back + 1) % max;
+			a[back] = el;
 		}
 		else {
 			if (front == -1) front = 0;
-			back = (back + 1) % N;
+			back = (back + 1) % max;
 			a[back] = el;
 		}
+		n++;
 	}
 
 	int pop() {
@@ -50,7 +65,8 @@ public:
 				back = -1;
 			}
 			else 
-				front = (front + 1) % N;
+				front = (front + 1) % max;
+			n--;
 			return el;
 		}
 	}
